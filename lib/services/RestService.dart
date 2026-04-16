@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
 
 class RestService {
@@ -23,7 +24,7 @@ class RestService {
         },
         body: jsonEncode(data));
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       return jsonDecode(response.body);
     }
 

@@ -12,4 +12,15 @@ class PostsRest implements PostsService {
 
     return (response as List).map((e) => Post.fromJson(e)).toList();
   }
+
+  @override
+  Future<Post> createPost(Post post) async {
+    final newPost = await rest.post('posts', data: post);
+    return Post.fromJson(newPost);
+  }
+
+  @override
+  Future deletePost(int id) async {
+    await rest.delete('posts/$id');
+  }
 }

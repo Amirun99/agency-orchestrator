@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_jsonplaceholder/screens/posts/posts_viewModel.dart';
+import 'package:flutter_jsonplaceholder/screens/posts/widgets/add_post_dialog.dart';
+import 'package:flutter_jsonplaceholder/screens/posts/widgets/delete_post.dart';
 import 'package:provider/provider.dart';
 
 class PostsPage extends StatefulWidget {
@@ -10,11 +12,11 @@ class PostsPage extends StatefulWidget {
   State<PostsPage> createState() => _PostsPageState();
 }
 
-class _PostsPageState extends State<PostsPage> {
+class _PostsPageState extends State<PostsPage> with TickerProviderStateMixin {
   final PostViewModel viewModel = PostViewModel();
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     viewModel.getAllPosts();
   }
@@ -23,31 +25,69 @@ class _PostsPageState extends State<PostsPage> {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<PostViewModel>(
       create: (context) => viewModel,
-      child: Consumer<PostViewModel>(
-        builder: (context, value, child) => ListView.builder(
-          itemBuilder: (context, index) => Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Card(
-              margin: const EdgeInsets.only(bottom: 5),
-              child: ExpansionTile(
-                  leading: Text('ID: ${value.posts[index].id}'),
-                  title: Text(value.posts[index].title),
-                  children: [
-                    Text('UserID: ${value.posts[index].userId}'),
-                    const SizedBox(height: 10),
-                    Padding(
-                      padding: const EdgeInsets.all(8),
-                      child: Text(
-                        value.posts[index].body,
-                        textAlign: TextAlign.left,
-                      ),
-                    ),
-                  ]),
+      child: Consumer<PostViewModel>(builder: (context, value, child) {
+        if (viewModel.isLoading == true) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        return Stack(children: [
+          ListView.builder(
+            itemBuilder: (context, index) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: InkWell(
+                onLongPress: () {
+                  deletePost(context, viewModel, index);
+                },
+                child: Card(
+                  margin: const EdgeInsets.only(bottom: 5),
+                  child: ExpansionTile(
+                      leading: Text('ID: ${value.posts[index].id}'),
+                      title: Text(value.posts[index].title!),
+                      children: [
+                        Text('UserID: ${value.posts[index].userId}'),
+                        const SizedBox(height: 10),
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Text(
+                            value.posts[index].body!,
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                      ]),
+                ),
+              ),
             ),
+            itemCount: value.posts.length,
           ),
-          itemCount: value.posts.length,
-        ),
-      ),
+          Align(
+            alignment: Alignment.bottomRight,
+            child: Padding(
+              padding: EdgeInsets.all(10),
+              child: Ink(
+                decoration: const ShapeDecoration(
+                  color: Colors.lightBlue,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  onPressed: () {
+                    addNewPost(context, viewModel);
+                  },
+                  icon: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          )
+        ]);
+      }),
     );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
   }
 }

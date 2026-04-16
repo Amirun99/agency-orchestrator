@@ -7,10 +7,14 @@ class PhotoViewModel extends ChangeNotifier {
   List<Photo> _photo = [];
 
   List<Photo> get photos => _photo;
+  bool _isLoading = true;
+  bool get isLoading => _isLoading;
+
   PhotoRest photo = PhotoRest();
 
   void getAllPhoto() async {
     _photo = await photo.fetchPhoto();
+    _isLoading = false;
     notifyListeners();
   }
 }
